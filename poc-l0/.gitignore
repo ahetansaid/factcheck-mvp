@@ -1,0 +1,19 @@
+# Environnement
+.venv/
+__pycache__/
+*.pyc
+
+# Modèles téléchargés
+models/
+
+# Données brutes et sorties générées
+data/audio/
+data/prepared/
+data/transcripts.csv
+data/translations.csv
+data/claims.csv
+data/report.md
+data/report.json
+
+# On VERSIONNE le gold : data/manifest.csv (référence transcrite à la main)
+!data/manifest.csv

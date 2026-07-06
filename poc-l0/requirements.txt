@@ -1,0 +1,14 @@
+# POC L0 — dépendances Python (testé sur Python 3.12)
+# Tout tourne sur CPU. ffmpeg doit être installé au niveau système (dans le PATH).
+
+torch>=2.2
+torchaudio>=2.2
+transformers>=4.41
+speechbrain>=1.0
+openai-whisper>=20231117
+jiwer>=3.0            # WER / CER
+sacrebleu>=2.4        # chrF (adéquation traduction si gold FR fourni)
+pandas>=2.0
+soundfile>=0.12
+librosa>=0.10
+anthropic>=0.40       # optionnel : 05_extract_claim.py
