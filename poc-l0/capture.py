@@ -39,6 +39,9 @@ def main():
 
     cmd = [
         "ffmpeg", "-y",
+        # Reconnexion auto : les streams gratuits coupent souvent sur de longues captures
+        "-reconnect", "1", "-reconnect_streamed", "1",
+        "-reconnect_on_network_error", "1", "-reconnect_delay_max", "5",
         "-i", args.url,
         "-t", str(dur),
         "-acodec", "libmp3lame", "-ar", "44100", "-ac", "1",
