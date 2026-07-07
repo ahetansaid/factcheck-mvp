@@ -19,6 +19,7 @@ import types
 from pathlib import Path
 
 import pandas as pd
+import soundfile as sf
 import torch
 import torchaudio
 
@@ -50,13 +51,18 @@ if "k2" not in sys.modules:
 
 
 def load_audio(path: str):
-    """Charge un WAV en mono 16 kHz -> tensor 1D."""
-    wav, sr = torchaudio.load(str(ROOT / path))
-    if wav.shape[0] > 1:
-        wav = wav.mean(dim=0, keepdim=True)
+    """Charge un WAV en mono 16 kHz -> tensor 1D.
+
+    On lit via soundfile plutôt que torchaudio.load : en torchaudio 2.11 l'I/O a
+    migré vers torchcodec (non installé). soundfile lit le WAV directement.
+    """
+    wav, sr = sf.read(str(ROOT / path), dtype="float32")
+    if wav.ndim > 1:                       # stéréo -> mono
+        wav = wav.mean(axis=1)
+    t = torch.from_numpy(wav)
     if sr != SAMPLE_RATE:
-        wav = torchaudio.functional.resample(wav, sr, SAMPLE_RATE)
-    return wav.squeeze(0)
+        t = torchaudio.functional.resample(t, sr, SAMPLE_RATE)  # resample OK en 2.11
+    return t
 
 
 # --- Backends (chargés à la demande) --------------------------------------
@@ -74,7 +80,17 @@ class FonASR:
         )
 
     def __call__(self, path: str) -> str:
-        return self.model.transcribe_file(str(ROOT / path)).strip()
+        # On charge l'audio nous-mêmes (torchaudio.load fonctionne en 2.11) et on
+        # passe le tensor à transcribe_batch, pour éviter le loader interne de
+        # SpeechBrain qui exige torchcodec (non installé, pénible sous Windows).
+        wav = load_audio(path)                       # 1D, 16 kHz mono
+        wavs = wav.unsqueeze(0)                       # [1, T]
+        wav_lens = torch.tensor([1.0])               # longueur relative
+        words, _ = self.model.transcribe_batch(wavs, wav_lens)
+        out = words[0]
+        if isinstance(out, (list, tuple)):
+            out = "".join(out) if all(len(str(x)) <= 1 for x in out) else " ".join(map(str, out))
+        return str(out).strip()
 
 
 class YorubaASR:

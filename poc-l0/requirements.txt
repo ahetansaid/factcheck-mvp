@@ -3,8 +3,8 @@
 
 torch>=2.2
 torchaudio>=2.2
-transformers>=4.41
-speechbrain>=1.0
+transformers>=4.44,<5     # transformers 5.x casse l'API MMS/lobes SpeechBrain
+speechbrain==1.0.3        # 1.1.x casse l'import du modèle (integrations paresseuses k2/wordemb)
 openai-whisper>=20231117
 jiwer>=3.0            # WER / CER
 sacrebleu>=2.4        # chrF (adéquation traduction si gold FR fourni)
