@@ -31,6 +31,7 @@ class NLLBTranslator:
         enc = self.tok(text, return_tensors="pt", truncation=True, max_length=512)
         gen = self.model.generate(
             **enc, forced_bos_token_id=self.bos, max_length=512, num_beams=4,
+            no_repeat_ngram_size=3,   # évite les boucles ("chaque famille chaque famille...")
         )
         return self.tok.batch_decode(gen, skip_special_tokens=True)[0].strip()
 
