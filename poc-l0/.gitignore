@@ -5,6 +5,7 @@ __pycache__/
 
 # Modèles téléchargés
 models/
+model_checkpoints/
 
 # Données brutes et sorties générées
 data/captures/

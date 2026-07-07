@@ -14,6 +14,8 @@ Usage :
     python 02_transcribe.py --manifest data/manifest.csv --output data/transcripts.csv
 """
 import argparse
+import sys
+import types
 from pathlib import Path
 
 import pandas as pd
@@ -22,6 +24,29 @@ import torchaudio
 
 from config import (ROOT, SPEECHBRAIN_FON, MMS_MODEL, WHISPER_MODEL,
                     MODELS_DIR, SAMPLE_RATE, LANGUAGES)
+
+# --- Compat versions -------------------------------------------------------
+# Stack retenu : SpeechBrain 1.0.3 (le modèle DVoice-fongbé date de la 1.0 ;
+# la 1.1.x casse l'import via ses "integrations" paresseuses) + torch/torchaudio
+# 2.11 modernes (Python 3.13). Deux incompatibilités à combler :
+#
+# 1) torchaudio 2.11 a SUPPRIMÉ list_audio_backends()/get_audio_backend(), que
+#    SpeechBrain 1.0.3 appelle au démarrage. load()/resample() restent présents,
+#    donc un shim renvoyant un backend suffit (soundfile est installé).
+if not hasattr(torchaudio, "list_audio_backends"):
+    torchaudio.list_audio_backends = lambda: ["soundfile"]
+if not hasattr(torchaudio, "get_audio_backend"):
+    torchaudio.get_audio_backend = lambda: "soundfile"
+
+# 2) k2 (décodage FSA) est inutile pour le CTC greedy d'ici et impossible à
+#    installer sous Windows ; stub défensif au cas où un import le réclamerait.
+if "k2" not in sys.modules:
+    try:
+        import k2  # noqa: F401
+    except ImportError:
+        _stub = types.ModuleType("k2")
+        _stub.__version__ = "0.0.0-stub"
+        sys.modules["k2"] = _stub
 
 
 def load_audio(path: str):
