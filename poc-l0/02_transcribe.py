@@ -144,7 +144,24 @@ def main():
             print(f"[{lang}] backend = {backend_name}")
             loaded[backend_name] = BACKENDS[backend_name]()
 
-    for i, row in df.iterrows():
+    out = ROOT / args.output
+
+    # Reprise : on ne retranscrit pas ce qui est déjà dans le fichier de sortie.
+    # Indispensable ici — l'ASR yoruba (MMS 1B) met des heures sur un CPU 2 cœurs,
+    # et une interruption ne doit pas tout perdre.
+    deja = {}
+    if out.exists():
+        prev = pd.read_csv(out, dtype=str).fillna("")
+        if "hypothesis" in prev.columns:
+            deja = {r["id"]: r["hypothesis"] for _, r in prev.iterrows() if r["hypothesis"].strip()}
+        if deja:
+            print(f"[reprise] {len(deja)} clips déjà transcrits, ignorés")
+
+    total = len(df)
+    for n, (i, row) in enumerate(df.iterrows(), 1):
+        if row["id"] in deja:
+            df.at[i, "hypothesis"] = deja[row["id"]]
+            continue
         backend = loaded[LANGUAGES[row["lang"]]["asr"]]
         try:
             hyp = backend(row["audio_path"])
@@ -152,9 +169,10 @@ def main():
             hyp = ""
             print(f"  [ERREUR] {row['id']} : {e}")
         df.at[i, "hypothesis"] = hyp
-        print(f"  [{row['id']}] {hyp[:70]}")
+        print(f"  [{n}/{total}] {row['id']} : {hyp[:60]}", flush=True)
+        # Écriture après chaque clip : une interruption ne perd qu'un clip.
+        df.to_csv(out, index=False, encoding="utf-8")
 
-    out = ROOT / args.output
     df.to_csv(out, index=False, encoding="utf-8")
     print(f"→ {out}")
 
