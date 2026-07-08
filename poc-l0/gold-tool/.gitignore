@@ -1,0 +1,8 @@
+# Base de saisie (binaire, change en permanence).
+# Le gold set se versionne via data/manifest.csv, après `python merge_gold.py`.
+gold.sqlite
+gold.sqlite-wal
+gold.sqlite-shm
+
+# Contient le jeton d'accès : ne jamais versionner.
+config.php
