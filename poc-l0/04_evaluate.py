@@ -28,9 +28,29 @@ except ImportError:
 
 
 # --- Normalisation ---------------------------------------------------------
+# Certains modèles encodent une lettre africaine avec un point de code homoglyphe.
+# Le modèle DVoice-fongbé sort l'epsilon GREC (ε U+03B5) là où l'orthographe fongbé
+# utilise l'epsilon latin (ɛ U+025B). Sans unification, chaque occurrence compterait
+# comme une erreur et gonflerait le WER (611 occurrences sur notre seul lot fon).
+CONFUSABLES = str.maketrans({
+    "ε": "ɛ",   # ε grec  -> ɛ latin
+    "ο": "o",        # ο grec  -> o latin
+})
+
+
 def normalize(text: str) -> str:
-    text = text.lower().strip()
-    text = re.sub(r"[^\w\s]", " ", text, flags=re.UNICODE)  # ponctuation -> espace
+    """Minuscules, homoglyphes unifiés, ponctuation retirée — MARQUES TONALES CONSERVÉES.
+
+    Attention : on ne peut pas utiliser `[^\\w\\s]` pour retirer la ponctuation, car
+    `\\w` ne matche pas les diacritiques combinants (catégorie Mn). Ils seraient
+    remplacés par une espace, ce qui supprime le ton *et* coupe le mot en deux
+    ('tɔ́n' -> 'tɔ n'). Or ɔ́, ɛ̀, ẹ̀, ọ́ n'ont pas de forme précomposée : le bug ne
+    frappait que les lettres propres au fon et au yoruba.
+    """
+    text = unicodedata.normalize("NFC", text).lower().strip()
+    text = text.translate(CONFUSABLES)
+    # Retire ponctuation (P*) et symboles (S*) ; garde lettres, chiffres et marques (M*).
+    text = "".join(" " if unicodedata.category(c)[0] in ("P", "S") else c for c in text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
