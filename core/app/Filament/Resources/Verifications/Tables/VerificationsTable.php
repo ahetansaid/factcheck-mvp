@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Verifications\Tables;
 
+use App\Models\Verification;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -15,31 +16,52 @@ class VerificationsTable
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
+                    ->label('Titre')
+                    ->searchable()
+                    ->limit(60)
+                    ->wrap(),
+
                 TextColumn::make('rating')
-                    ->searchable(),
-                TextColumn::make('category')
-                    ->searchable(),
+                    ->label('Verdict')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state) => Verification::RATINGS[$state]['label'] ?? $state)
+                    ->color(fn (string $state) => match ($state) {
+                        'true' => 'success',
+                        'false' => 'danger',
+                        'misleading' => 'warning',
+                        default => 'gray',
+                    }),
+
                 TextColumn::make('personality.name')
+                    ->label('Personnalité')
+                    ->placeholder('—')
                     ->searchable(),
-                TextColumn::make('author.name')
-                    ->searchable(),
+
+                TextColumn::make('category')
+                    ->label('Catégorie')
+                    ->badge()
+                    ->color('gray')
+                    ->placeholder('—'),
+
                 TextColumn::make('status')
-                    ->searchable(),
+                    ->label('Statut')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state) => $state === 'published' ? 'Publié' : 'Brouillon')
+                    ->color(fn (string $state) => $state === 'published' ? 'success' : 'gray'),
+
                 TextColumn::make('published_at')
-                    ->dateTime()
+                    ->label('Publié le')
+                    ->dateTime('d/m/Y')
+                    ->placeholder('—')
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Modifié')
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
