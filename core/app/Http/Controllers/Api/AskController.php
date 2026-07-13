@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Services\VerificationSearch;
+use Illuminate\Http\Request;
+
+/**
+ * Assistant conversationnel — « c'est vrai, ça ? ».
+ *
+ * Garde-fou dur : la réponse provient UNIQUEMENT d'une vérification publiée,
+ * avec sa source. Aucune correspondance → on ne devine pas, on transmet à la
+ * rédaction. Le modèle ne produit jamais un verdict absent de la base.
+ */
+class AskController extends Controller
+{
+    public function ask(Request $request, VerificationSearch $search)
+    {
+        $question = trim((string) $request->input('question', ''));
+
+        if (mb_strlen($question) < 3) {
+            return response()->json([
+                'matched' => false,
+                'message' => 'Posez une question sur une affirmation à vérifier.',
+            ]);
+        }
+
+        $v = $search->best($question);
+
+        if (! $v) {
+            return response()->json([
+                'matched' => false,
+                'message' => "Cette affirmation n'a pas encore été vérifiée par notre rédaction. "
+                    . "Nous l'avons transmise à l'équipe éditoriale.",
+            ]);
+        }
+
+        return response()->json([
+            'matched' => true,
+            'message' => "Verdict : {$v->ratingLabel()}. {$v->summary}",
+            'verification' => [
+                'title' => $v->title,
+                'slug' => $v->slug,
+                'rating' => $v->rating,
+                'rating_label' => $v->ratingLabel(),
+                'summary' => $v->summary,
+                'sources' => $v->sources->map(fn ($s) => ['title' => $s->title, 'url' => $s->url])->all(),
+            ],
+        ]);
+    }
+}
