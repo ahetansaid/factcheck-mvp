@@ -14,8 +14,11 @@ Route::get('/verifications/{slug}', [VerificationController::class, 'show']);
 Route::get('/personalities', [PersonalityController::class, 'index']);
 Route::get('/personalities/{slug}', [PersonalityController::class, 'show']);
 
-// Assistant conversationnel (RAG déterministe, garde-fou anti-hallucination).
-Route::post('/ask', [AskController::class, 'ask']);
+// Endpoints publics en écriture : limités en débit (anti-spam de la file).
+Route::middleware('throttle:20,1')->group(function () {
+    // Assistant conversationnel (RAG déterministe, garde-fou anti-hallucination).
+    Route::post('/ask', [AskController::class, 'ask']);
 
-// Signalement public d'une rumeur → file éditoriale.
-Route::post('/submissions', [SubmissionController::class, 'store']);
+    // Signalement public d'une rumeur → file éditoriale.
+    Route::post('/submissions', [SubmissionController::class, 'store']);
+});
