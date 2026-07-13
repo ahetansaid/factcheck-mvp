@@ -33,9 +33,19 @@ async function get<T>(path: string): Promise<T | null> {
   return res.json() as Promise<T>;
 }
 
-export async function getVerifications(): Promise<ListItem[]> {
-  const r = await get<{ data: ListItem[] }>("/verifications");
+export async function getVerifications(
+  params: { q?: string; category?: string } = {},
+): Promise<ListItem[]> {
+  const qs = new URLSearchParams();
+  if (params.q) qs.set("q", params.q);
+  if (params.category) qs.set("category", params.category);
+  const suffix = qs.toString() ? `?${qs}` : "";
+  const r = await get<{ data: ListItem[] }>(`/verifications${suffix}`);
   return r?.data ?? [];
+}
+
+export async function getCategories(): Promise<string[]> {
+  return (await get<string[]>("/categories")) ?? [];
 }
 
 export async function getVerification(slug: string): Promise<Verification | null> {

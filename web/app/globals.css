@@ -105,7 +105,14 @@ p { margin:0; }
 
 /* chips */
 .chips { display:flex; flex-wrap:wrap; gap:.5rem; }
-.chip { font-family:var(--mono); font-size:.72rem; letter-spacing:.05em; padding:.35rem .75rem; border-radius:99px; border:1px solid var(--line); color:var(--mut); }
+.chip { font-family:var(--mono); font-size:.72rem; letter-spacing:.05em; padding:.35rem .75rem; border-radius:99px; border:1px solid var(--line); color:var(--mut); transition:border-color .15s, color .15s; }
+a.chip:hover { border-color:var(--accent); color:var(--accent); }
+
+/* search bar */
+.search-bar { display:flex; gap:.6rem; margin-top:1.5rem; max-width:34rem; }
+.search-bar input { flex:1; font:inherit; font-size:1rem; padding:.7rem 1rem; border-radius:99px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+.search-bar input:focus { outline:none; border-color:var(--accent); }
+.search-bar button { font:inherit; font-weight:600; cursor:pointer; padding:.7rem 1.2rem; border-radius:99px; border:none; background:linear-gradient(100deg,var(--accent),var(--accent-2)); color:var(--accent-ink); }
 
 /* article */
 .article { max-width:44rem; margin-inline:auto; }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 // API publique en lecture seule, consommée par le front Next.js.
 Route::get('/verifications', [VerificationController::class, 'index']);
+Route::get('/categories', [VerificationController::class, 'categories']);
 Route::get('/verifications/{slug}', [VerificationController::class, 'show']);
 
 Route::get('/personalities', [PersonalityController::class, 'index']);

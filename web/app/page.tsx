@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getVerifications, type ListItem } from "@/lib/api";
+import { getVerifications, getCategories, type ListItem } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +29,7 @@ export default async function Home() {
   } catch {
     error = true;
   }
+  const categories = await getCategories().catch(() => []);
 
   const [featured, ...rest] = items;
 
@@ -42,6 +43,13 @@ export default async function Home() {
             Nous vérifions les affirmations qui circulent — en français, en fon et en yoruba —
             avec des sources et un verdict clair. Chaque vérification est publiée pour être citée.
           </p>
+          {categories.length > 0 && (
+            <div className="chips" style={{ marginTop: "1.8rem" }}>
+              {categories.map((c) => (
+                <Link key={c} href={`/recherche?category=${encodeURIComponent(c)}`} className="chip">{c}</Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
