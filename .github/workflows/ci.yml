@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend — tests & balisage ClaimReview
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: core
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurer PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo_sqlite, sqlite3, mbstring, intl
+          coverage: none
+
+      - name: Installer les dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Préparer l'environnement
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch database/database.sqlite
+
+      - name: Migrer et peupler la base
+        run: php artisan migrate --seed --force
+        env:
+          DB_CONNECTION: sqlite
+
+      - name: Lancer les tests
+        run: php artisan test
+
+      - name: Valider le balisage ClaimReview
+        run: php artisan claimreview:validate
+        env:
+          DB_CONNECTION: sqlite
