@@ -28,22 +28,22 @@ export default async function PersonalityPage(
     <main className="section">
       <div className="wrap article">
         <Link href="/personnalites" className="back">← Annuaire des personnalités</Link>
-        <h1 style={{ marginTop: "1.2rem" }}>{p.name}</h1>
-        {p.role && <p className="mut">{p.role}</p>}
+        <h1>{p.name}</h1>
+        {p.role && <p className="meta">{p.role}</p>}
 
-        <div className="stats" style={{ marginTop: "1rem" }}>
+        <div className="stats" style={{ marginTop: "1.1rem" }}>
           {Object.entries(p.counts).filter(([, n]) => n > 0).map(([r, n]) => (
-            <span key={r} className={`stat verdict ${r}`}>{LABELS[r] ?? r} <b>{n}</b></span>
+            <span key={r} className={`stat ${r}`}>{LABELS[r] ?? r} <b>{n}</b></span>
           ))}
         </div>
 
-        {p.bio && <p style={{ marginTop: "1.4rem" }}>{p.bio}</p>}
+        {p.bio && <p style={{ marginTop: "1.4rem", color: "var(--mut)" }}>{p.bio}</p>}
 
-        <p className="eyebrow" style={{ margin: "2.4rem 0 1rem" }}>Vérifications</p>
+        <p className="eyebrow" style={{ margin: "2.6rem 0 1.2rem" }}>Ses vérifications</p>
         <div className="grid">
-          {p.verifications.length === 0 && <p className="mut">Aucune vérification publiée.</p>}
+          {p.verifications.length === 0 && <p className="empty">Aucune vérification publiée.</p>}
           {p.verifications.map((v) => (
-            <Link key={v.slug} href={`/verifications/${v.slug}`} className="card">
+            <Link key={v.slug} href={`/verifications/${v.slug}`} className={`card v-${v.rating}`}>
               <span className={`verdict ${v.rating}`}>{v.rating_label}</span>
               <h3>{v.title}</h3>
               <p>{v.summary}</p>

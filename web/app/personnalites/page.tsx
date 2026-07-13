@@ -17,30 +17,34 @@ export default async function PersonalitiesPage() {
   }
 
   return (
-    <main className="section">
-      <div className="wrap">
-        <p className="eyebrow">Annuaire</p>
-        <h1>Personnalités &amp; sources de rumeurs</h1>
-        <p className="lede">Le bilan des vérifications par acteur : combien de leurs affirmations se sont révélées vraies, fausses ou trompeuses.</p>
-
-        <div className="grid" style={{ marginTop: "2rem" }}>
-          {people.length === 0 && <p className="mut">Aucune personnalité pour le moment.</p>}
-          {people.map((p) => (
-            <Link key={p.slug} href={`/personnalites/${p.slug}`} className="card">
-              <h3>{p.name}</h3>
-              {p.role && <p>{p.role}</p>}
-              <div className="stats">
-                {Object.entries(p.counts)
-                  .filter(([, n]) => n > 0)
-                  .map(([r, n]) => (
-                    <span key={r} className={`stat verdict ${r}`}>{LABELS[r] ?? r} <b>{n}</b></span>
-                  ))}
-                {p.total === 0 && <span className="stat mut">aucune vérif publiée</span>}
-              </div>
-            </Link>
-          ))}
+    <main>
+      <section className="hero-h">
+        <div className="wrap">
+          <p className="eyebrow">Annuaire</p>
+          <h1>Personnalités &amp; sources de rumeurs</h1>
+          <p className="lede">Le bilan des vérifications par acteur : combien de leurs affirmations se sont révélées vraies, fausses ou trompeuses.</p>
         </div>
-      </div>
+      </section>
+
+      <section className="section">
+        <div className="wrap">
+          <div className="grid">
+            {people.length === 0 && <p className="empty">Aucune personnalité pour le moment.</p>}
+            {people.map((p) => (
+              <Link key={p.slug} href={`/personnalites/${p.slug}`} className="card">
+                <h3>{p.name}</h3>
+                {p.role && <p>{p.role}</p>}
+                <div className="stats">
+                  {Object.entries(p.counts).filter(([, n]) => n > 0).map(([r, n]) => (
+                    <span key={r} className={`stat ${r}`}>{LABELS[r] ?? r} <b>{n}</b></span>
+                  ))}
+                  {p.total === 0 && <span className="stat">aucune vérif publiée</span>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

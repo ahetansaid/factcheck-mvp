@@ -32,36 +32,31 @@ export default async function VerificationPage(
         <article className="article">
           <Link href="/" className="back">← Toutes les vérifications</Link>
 
-          <div style={{ margin: "1.2rem 0 .8rem" }}>
-            <span className={`verdict ${v.rating}`}>{v.rating_label}</span>
-          </div>
+          <span className={`verdict ${v.rating}`}>{v.rating_label}</span>
           <h1>{v.title}</h1>
-          <p className="mono mut" style={{ fontSize: ".82rem", marginTop: ".6rem" }}>
+          <p className="meta">
             {v.category ?? "Vérification"}{v.published_at ? ` · ${fmtDate(v.published_at)}` : ""}
-            {v.personality ? ` · ${v.personality.name}` : ""}
+            {v.personality ? (
+              <> · <Link href={`/personnalites/${v.personality.slug}`} style={{ color: "var(--link)" }}>{v.personality.name}</Link></>
+            ) : null}
           </p>
 
           <p className="claim">« {v.claim} »</p>
-
-          <p className="serif" style={{ fontSize: "1.15rem" }}>{v.summary}</p>
+          <p className="summary">{v.summary}</p>
 
           {v.body && (
             <div className="body">
-              {v.body.split(/\n{2,}|\n/).filter(Boolean).map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
+              {v.body.split(/\n{2,}|\n/).filter(Boolean).map((para, i) => <p key={i}>{para}</p>)}
             </div>
           )}
 
           {v.sources.length > 0 && (
             <div className="sources">
-              <p className="eyebrow" style={{ marginBottom: ".7rem" }}>Sources</p>
+              <p className="eyebrow">Sources</p>
               <ul>
                 {v.sources.map((s, i) => (
                   <li key={i}>
-                    <a href={s.url} target="_blank" rel="noopener noreferrer">
-                      {s.title ?? s.url}
-                    </a>
+                    <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title ?? s.url}</a>
                   </li>
                 ))}
               </ul>
@@ -70,7 +65,7 @@ export default async function VerificationPage(
         </article>
       </div>
 
-      {/* Balisage AI-native : ClaimReview + Article lisible par Google, Perplexity, ChatGPT, Claude. */}
+      {/* Balisage AI-native : ClaimReview + Article, lisible par Google, Perplexity, ChatGPT, Claude. */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(v.claim_review) }}
