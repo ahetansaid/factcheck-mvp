@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Submission;
+use App\Services\AnswerComposer;
 use App\Services\VerificationSearch;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,7 @@ use Illuminate\Http\Request;
  */
 class AskController extends Controller
 {
-    public function ask(Request $request, VerificationSearch $search)
+    public function ask(Request $request, VerificationSearch $search, AnswerComposer $composer)
     {
         $question = trim((string) $request->input('question', ''));
 
@@ -43,9 +44,13 @@ class AskController extends Controller
             ]);
         }
 
+        // Claude reformule en langage naturel ; repli déterministe si indisponible.
+        $message = $composer->compose($question, $v)
+            ?? "Verdict : {$v->ratingLabel()}. {$v->summary}";
+
         return response()->json([
             'matched' => true,
-            'message' => "Verdict : {$v->ratingLabel()}. {$v->summary}",
+            'message' => $message,
             'verification' => [
                 'title' => $v->title,
                 'slug' => $v->slug,
