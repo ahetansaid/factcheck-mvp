@@ -3,6 +3,10 @@
 > Document de travail technique. Cible : partenaire éditorial béninois éligible (appel EPSG).
 > Périmètre : ce qui est **buildable sur nos moyens propres**, sans dépendance externe bloquante.
 
+> 📌 **Ce document est le plan initial (vision).** Pour l'inventaire de **ce qui a été
+> réellement construit**, comment le lancer et l'état d'avancement, voir
+> **[`docs/etat-du-projet.md`](docs/etat-du-projet.md)**. Déploiement : [`docs/deploiement.md`](docs/deploiement.md).
+
 ---
 
 ## 1. Objectif du MVP
