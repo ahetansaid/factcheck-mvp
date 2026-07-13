@@ -1,0 +1,4 @@
+# Worker d'embeddings (réutilise le venv de poc-l0 : torch + transformers déjà présents).
+# À installer en plus dans poc-l0/.venv :
+fastapi>=0.110
+uvicorn>=0.29

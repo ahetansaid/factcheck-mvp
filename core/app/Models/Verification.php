@@ -12,12 +12,19 @@ class Verification extends Model
 {
     protected $fillable = [
         'title', 'slug', 'claim', 'rating', 'summary', 'body', 'category',
-        'personality_id', 'author_id', 'status', 'published_at',
+        'personality_id', 'author_id', 'status', 'published_at', 'embedding',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
+        'embedding' => 'array',
     ];
+
+    /** Texte représentatif à vectoriser (titre + affirmation + résumé). */
+    public function embeddingText(): string
+    {
+        return trim("{$this->title}. {$this->claim} {$this->summary}");
+    }
 
     /** Verdict interne => libellé FR + valeur schema.org (1 = faux … 5 = vrai). */
     public const RATINGS = [
@@ -32,6 +39,10 @@ class Verification extends Model
         static::saving(function (self $v) {
             if (blank($v->slug)) {
                 $v->slug = Str::slug($v->title);
+            }
+            // Contenu modifié → embedding périmé : on l'invalide (rebuild via embeddings:build).
+            if ($v->exists && $v->isDirty(['title', 'claim', 'summary'])) {
+                $v->embedding = null;
             }
         });
     }

@@ -40,4 +40,10 @@ return [
         'model' => env('ANTHROPIC_MODEL', 'claude-haiku-4-5-20251001'),
     ],
 
+    'embeddings' => [
+        'url' => env('EMBED_WORKER_URL', 'http://127.0.0.1:8100'),
+        // Seuil de similarité cosinus au-dessus duquel un match est retenu.
+        'threshold' => (float) env('EMBED_THRESHOLD', 0.84),
+    ],
+
 ];

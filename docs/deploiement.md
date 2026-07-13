@@ -87,7 +87,20 @@ php artisan route:cache
 
 ---
 
-## 5. Étapes ultérieures (non couvertes ici)
-- **L2 v2** : renseigner `ANTHROPIC_API_KEY` dans `core/.env` (reformulation Claude).
-- **L2 v3** : activer l'extension `vector`, worker d'embeddings (à partir de `poc-l0/`).
-- **L3** : brancher le pipeline voix du POC via un service FastAPI.
+## 5. Bot conversationnel — options
+
+Le bot fonctionne en **récupération déterministe** par défaut (aucune dépendance).
+Deux améliorations, activables indépendamment :
+
+- **v2 — reformulation Claude** : renseigner `ANTHROPIC_API_KEY` dans `core/.env`
+  (compte Anthropic crédité). Sans clé, réponse déterministe. Voir `AnswerComposer`.
+- **v3 — recherche sémantique** : lancer le **worker d'embeddings** (`workers/`,
+  voir son README) puis `php artisan embeddings:build`. Le bot comprend alors les
+  reformulations sans mot-clé exact. Worker arrêté → repli automatique sur les
+  mots-clés. `EMBED_WORKER_URL` / `EMBED_THRESHOLD` dans `core/.env`.
+  À grande échelle : héberger le worker sur une machine Linux et migrer le stockage
+  des vecteurs vers **pgvector** (installation triviale sur Linux).
+
+## 6. Étape ultérieure — L3 (voix)
+Brancher le pipeline voix du POC (`poc-l0/`) au worker FastAPI (transcription fon/
+yoruba → traduction → recherche sémantique existante).
