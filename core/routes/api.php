@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AskController;
 use App\Http\Controllers\Api\PersonalityController;
+use App\Http\Controllers\Api\SubmissionController;
 use App\Http\Controllers\Api\VerificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,3 +15,6 @@ Route::get('/personalities/{slug}', [PersonalityController::class, 'show']);
 
 // Assistant conversationnel (RAG déterministe, garde-fou anti-hallucination).
 Route::post('/ask', [AskController::class, 'ask']);
+
+// Signalement public d'une rumeur → file éditoriale.
+Route::post('/submissions', [SubmissionController::class, 'store']);

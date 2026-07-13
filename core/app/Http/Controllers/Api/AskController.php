@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Submission;
 use App\Services\VerificationSearch;
 use Illuminate\Http\Request;
 
@@ -29,6 +30,12 @@ class AskController extends Controller
         $v = $search->best($question);
 
         if (! $v) {
+            // Garde-fou : aucune réponse en base → on crée réellement une entrée
+            // dans la file éditoriale (pas de doublon exact récent).
+            Submission::firstOrCreate(
+                ['type' => 'bot', 'content' => $question, 'status' => 'new'],
+            );
+
             return response()->json([
                 'matched' => false,
                 'message' => "Cette affirmation n'a pas encore été vérifiée par notre rédaction. "

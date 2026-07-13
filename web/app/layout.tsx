@@ -21,6 +21,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <Link href="/" className="brand"><span className="mark" />Vérifon</Link>
             <Link href="/" className="link">Vérifications</Link>
             <Link href="/personnalites" className="link">Personnalités</Link>
+            <Link href="/signaler" className="link">Signaler</Link>
           </div>
         </header>
         {children}

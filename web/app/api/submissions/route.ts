@@ -1,5 +1,4 @@
-// Proxy vers l'API Laravel : le widget appelle /api/ask (même origine),
-// on relaie côté serveur pour éviter tout souci CORS.
+// Proxy vers l'API Laravel pour le formulaire public de signalement.
 const API = process.env.API_URL ?? "http://127.0.0.1:8000/api";
 
 export async function POST(req: Request) {
@@ -11,18 +10,18 @@ export async function POST(req: Request) {
   }
 
   try {
-    const r = await fetch(`${API}/ask`, {
+    const r = await fetch(`${API}/submissions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(body),
       cache: "no-store",
     });
-    const data = await r.json();
-    return Response.json(data);
+    const data = await r.json().catch(() => ({}));
+    return Response.json(data, { status: r.status });
   } catch {
     return Response.json(
-      { matched: false, message: "Le service est momentanément indisponible. Réessayez dans un instant." },
-      { status: 200 },
+      { ok: false, message: "Service momentanément indisponible. Réessayez." },
+      { status: 503 },
     );
   }
 }

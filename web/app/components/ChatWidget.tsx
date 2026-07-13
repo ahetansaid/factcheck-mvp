@@ -6,7 +6,7 @@ type Verif = {
   title: string; slug: string; rating: string; rating_label: string;
   summary: string; sources: { title: string | null; url: string }[];
 };
-type Msg = { role: "user" | "bot"; text: string; verif?: Verif };
+type Msg = { role: "user" | "bot"; text: string; verif?: Verif; signal?: boolean };
 
 const PRESETS = [
   "Une tisane guérit-elle le paludisme ?",
@@ -39,7 +39,7 @@ export default function ChatWidget() {
         body: JSON.stringify({ question: q }),
       });
       const d = await r.json();
-      setMsgs((m) => [...m, { role: "bot", text: d.message, verif: d.matched ? d.verification : undefined }]);
+      setMsgs((m) => [...m, { role: "bot", text: d.message, verif: d.matched ? d.verification : undefined, signal: !d.matched }]);
     } catch {
       setMsgs((m) => [...m, { role: "bot", text: "Service indisponible, réessayez." }]);
     } finally {
@@ -75,6 +75,9 @@ export default function ChatWidget() {
                       </a></>
                     )}
                   </div>
+                )}
+                {m.signal && (
+                  <div className="c-cite"><a href="/signaler">Détailler ce signalement →</a></div>
                 )}
               </div>
             ))}
